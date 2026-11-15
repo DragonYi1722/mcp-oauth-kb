@@ -104,6 +104,7 @@ def rpc(token: str | None, method: str, params: dict[str, Any]) -> httpx.Respons
             "params": {**params, "_meta": META},
         },
         timeout=20,
+        trust_env=False,  # never send localhost traffic through a system proxy
     )
 
 

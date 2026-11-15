@@ -110,7 +110,11 @@ async def get_user(
 
 
 async def main(*, reset: bool) -> None:
-    async with httpx.AsyncClient(timeout=10) as client:
+    # trust_env=False: httpx reads the Windows system proxy, which turns
+    # http://localhost:8080 into a 502 Bad Gateway on machines that run a
+    # local proxy (Clash, v2ray, corporate agents). These calls only ever
+    # target localhost, so the proxy must never be used.
+    async with httpx.AsyncClient(timeout=10, trust_env=False) as client:
         token = await get_admin_token(client)
         keycloak_users = {}
         for username in ("alice", "bob", "admin"):

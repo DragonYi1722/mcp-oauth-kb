@@ -45,7 +45,9 @@ class KbClient:
 
         stack = AsyncExitStack()
         http = await stack.enter_async_context(
-            httpx2.AsyncClient(headers=headers, timeout=30.0)
+            # trust_env=False: a local system proxy (Clash, v2ray, corporate
+            # agents) turns http://localhost:8000 into 502 Bad Gateway.
+            httpx2.AsyncClient(headers=headers, timeout=30.0, trust_env=False)
         )
         read, write = await stack.enter_async_context(
             streamable_http_client(self.server_url, http_client=http)
