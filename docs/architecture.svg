@@ -1,0 +1,132 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1120 700" width="1120" height="700" role="img" aria-labelledby="title desc">
+  <title id="title">Secure Knowledge Base MCP Server 授权链路</title>
+  <desc id="desc">MCP 客户端先收到 401 与 RFC 9728 元数据，再向 Keycloak 发起授权码加 PKCE 登录并换取 token，随后以 Bearer 调用 MCP Server；Server 用 JWKS 验签，按 sub 做 ACL 查询并写入审计，数据存于 PostgreSQL。</desc>
+
+  <defs>
+    <style>
+      .bg { fill: #f8fafc; }
+      .box { stroke-width: 1.5; }
+      .client { fill: #f1f5f9; stroke: #94a3b8; }
+      .server { fill: #eef2ff; stroke: #6366f1; }
+      .auth { fill: #ecfdf5; stroke: #10b981; }
+      .db { fill: #fff7ed; stroke: #f59e0b; }
+      .title { font: 600 15px "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #0f172a; }
+      .row { font: 13px "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #1e293b; }
+      .muted { font: 12px "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #64748b; }
+      .label { font: 11.5px "Inter", "Noto Sans SC", "PingFang SC", "Microsoft YaHei", sans-serif; fill: #475569; }
+      .num { font: 600 11px "Inter", sans-serif; fill: #ffffff; }
+      .badge { fill: #6366f1; }
+      .badge2 { fill: #10b981; }
+      .badge3 { fill: #f59e0b; }
+      .arrow { stroke: #64748b; stroke-width: 1.6; fill: none; marker-end: url(#arrow); }
+      .arrow-auth { stroke: #10b981; stroke-width: 1.6; fill: none; marker-end: url(#arrowGreen); }
+      .arrow-db { stroke: #f59e0b; stroke-width: 1.6; fill: none; marker-end: url(#arrowAmber); }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#64748b"/>
+    </marker>
+    <marker id="arrowGreen" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#10b981"/>
+    </marker>
+    <marker id="arrowAmber" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#f59e0b"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1120" height="700"/>
+
+  <text class="title" x="40" y="44">Secure Knowledge Base MCP Server · OAuth 2.1 授权链路</text>
+  <text class="muted" x="40" y="66">MCP 2026-07-28 无状态传输 · RFC 9728 资源元数据 · 授权码 + PKCE (S256) · 数据级隔离 · 全量审计</text>
+
+  <!-- MCP client -->
+  <rect class="box client" x="40" y="250" width="230" height="190" rx="14"/>
+  <text class="title" x="60" y="282">MCP Client</text>
+  <text class="row" x="60" y="312">MCP Inspector</text>
+  <text class="row" x="60" y="336">Python 客户端 · kb-client</text>
+  <text class="row" x="60" y="360">TypeScript 客户端</text>
+  <text class="muted" x="60" y="394">各自完成 OAuth 2.1 + PKCE</text>
+  <text class="muted" x="60" y="412">token 缓存与静默刷新</text>
+
+  <!-- MCP server -->
+  <rect class="box server" x="380" y="120" width="330" height="440" rx="14"/>
+  <text class="title" x="402" y="154">MCP Server（Resource Server）</text>
+  <line x1="402" y1="170" x2="688" y2="170" stroke="#c7d2fe" stroke-width="1.2"/>
+
+  <text class="row" x="402" y="198">· 401 + WWW-Authenticate</text>
+  <text class="muted" x="402" y="216">/mcp 与受保护资源元数据端点</text>
+
+  <text class="row" x="402" y="252">· TokenVerifier</text>
+  <text class="muted" x="402" y="270">RS256，校验 iss / aud / exp / sub</text>
+
+  <text class="row" x="402" y="306">· scope → 工具映射</text>
+  <text class="muted" x="402" y="324">kb.read / kb.write / kb.admin</text>
+
+  <text class="row" x="402" y="360">· 数据级 ACL</text>
+  <text class="muted" x="402" y="378">身份只取 sub；越权统一返回 404</text>
+
+  <text class="row" x="402" y="414">· 审计 + 限流</text>
+  <text class="muted" x="402" y="432">request_id；参数只存 SHA-256 摘要</text>
+  <text class="muted" x="402" y="450">按 sub 的 60 秒滑动窗口</text>
+
+  <text class="muted" x="402" y="492">无状态：任一 Server 副本都能直接服务</text>
+  <text class="muted" x="402" y="512">Mcp-Method / Mcp-Name 头路由</text>
+
+  <!-- Keycloak -->
+  <rect class="box auth" x="810" y="120" width="270" height="170" rx="14"/>
+  <text class="title" x="832" y="152">Keycloak（AS）</text>
+  <text class="row" x="832" y="182">realm: kb</text>
+  <text class="muted" x="832" y="204">OIDC discovery · /authorize</text>
+  <text class="muted" x="832" y="224">/token · /certs（JWKS）</text>
+  <text class="muted" x="832" y="248">client scope 绑定 aud</text>
+  <text class="muted" x="832" y="270">alice · bob · admin</text>
+
+  <!-- PostgreSQL -->
+  <rect class="box db" x="810" y="350" width="270" height="190" rx="14"/>
+  <text class="title" x="832" y="382">PostgreSQL 16</text>
+  <text class="row" x="832" y="412">documents · document_acl</text>
+  <text class="muted" x="832" y="434">users · departments</text>
+  <text class="row" x="832" y="462">audit_logs</text>
+  <text class="muted" x="832" y="484">actor_sub · tool · result</text>
+  <text class="muted" x="832" y="504">args_digest · request_id</text>
+  <text class="muted" x="832" y="526">按 sub / 部门过滤的查询</text>
+
+  <!-- 1: 401 + PRM -->
+  <path class="arrow" d="M 378 330 L 274 330"/>
+  <circle class="badge" cx="326" cy="318" r="10"/>
+  <text class="num" x="326" y="322" text-anchor="middle">1</text>
+  <text class="label" x="326" y="354" text-anchor="middle">401 + PRM</text>
+
+  <!-- 2: client -> AS discovery + authorize -->
+  <path class="arrow-auth" d="M 155 248 L 155 100 L 770 100 L 770 170 L 804 170"/>
+  <circle class="badge2" cx="500" cy="100" r="10"/>
+  <text class="num" x="500" y="104" text-anchor="middle">2</text>
+  <text class="label" x="500" y="84" text-anchor="middle">OIDC discovery · 授权码 + PKCE</text>
+
+  <!-- 3: AS -> client token, routed under the server -->
+  <path class="arrow-auth" d="M 945 292 L 945 320 L 1098 320 L 1098 620 L 155 620 L 155 444"/>
+  <circle class="badge2" cx="620" cy="620" r="10"/>
+  <text class="num" x="620" y="624" text-anchor="middle">3</text>
+  <text class="label" x="620" y="646" text-anchor="middle">code → token（含 refresh）</text>
+
+  <!-- 4: client -> server bearer -->
+  <path class="arrow" d="M 274 410 L 376 410"/>
+  <circle class="badge" cx="326" cy="398" r="10"/>
+  <text class="num" x="326" y="402" text-anchor="middle">4</text>
+  <text class="label" x="326" y="434" text-anchor="middle">Bearer 调用工具</text>
+
+  <!-- 5: server -> AS jwks -->
+  <path class="arrow-auth" d="M 712 210 L 804 210"/>
+  <circle class="badge2" cx="758" cy="198" r="10"/>
+  <text class="num" x="758" y="202" text-anchor="middle">5</text>
+  <text class="label" x="758" y="236" text-anchor="middle">JWKS</text>
+
+  <!-- 6: server -> postgres -->
+  <path class="arrow-db" d="M 712 440 L 804 440"/>
+  <circle class="badge3" cx="758" cy="428" r="10"/>
+  <text class="num" x="758" y="432" text-anchor="middle">6</text>
+  <text class="label" x="758" y="466" text-anchor="middle">ACL · 审计</text>
+
+  <!-- footer -->
+  <text class="muted" x="40" y="676">安全边界：客户端不直连数据库；Server 不转发客户端 token；身份只来自 JWT 的 sub；每次工具调用写审计（不含 token、正文与密码）。</text>
+  <text class="muted" x="40" y="694">实现位置：apps/mcp-server/src/kb_mcp/（auth.py · tools/ · repository.py · ratelimit.py）</text>
+</svg>
