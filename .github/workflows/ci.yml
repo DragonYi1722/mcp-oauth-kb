@@ -113,7 +113,7 @@ jobs:
           cache-dependency-path: apps/ts-client/package-lock.json
       - name: Install Python packages
         run: |
-          pip install -e apps/mcp-server
+          pip install -e "apps/mcp-server[dev]"
           pip install -e apps/py-client
       - name: Build TypeScript client
         working-directory: apps/ts-client
