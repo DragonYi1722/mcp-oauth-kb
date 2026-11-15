@@ -220,6 +220,7 @@ mcp-oauth-kb/
 - [03-安全设计](docs/03-安全设计.md)：STRIDE、威胁矩阵、检查清单
 - [04-接口与工具](docs/04-接口与工具.md)：6 个工具的 JSON Schema 与错误码
 - [05-演示脚本](docs/05-演示脚本.md)：3 分钟分镜与录屏清单
+- [06-简历与面试](docs/06-简历与面试.md)：简历要点、STAR 故事、高频追问
 - 博客：
   - [MCP 2026-07-28：没有 initialize 和 session 之后](docs/blog/01-mcp-stateless.md)
   - [把 MCP Server 变成 OAuth 2.1 资源服务器](docs/blog/02-oauth-resource-server.md)
