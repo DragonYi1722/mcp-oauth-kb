@@ -37,7 +37,9 @@ def wait_for_discovery(issuer: str, wait_seconds: int) -> dict[str, Any] | None:
         attempt += 1
         try:
             return get_json(url)
-        except (urllib.error.URLError, TimeoutError, json.JSONDecodeError):
+        # Keycloak resets connections while it is still starting, so retry on
+        # any socket-level error, not just URLError.
+        except (OSError, json.JSONDecodeError):
             if time.monotonic() >= deadline:
                 return None
             if attempt == 1:

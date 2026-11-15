@@ -123,7 +123,7 @@ jobs:
       - name: Start PostgreSQL and Keycloak
         run: |
           cp .env.example .env
-          docker compose -f infra/docker-compose.yml up -d postgres keycloak
+          docker compose -f infra/docker-compose.yml up -d --wait --wait-timeout 300 postgres keycloak
       - name: Wait for the realm
         run: python scripts/check_keycloak.py --wait 180
       - name: Seed real subjects
