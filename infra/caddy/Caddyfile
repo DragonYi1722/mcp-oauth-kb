@@ -1,0 +1,45 @@
+{
+	# Local development uses Caddy's internal CA.
+	# For a public deployment, replace `tls internal` with a real domain:
+	#   DOMAIN=mcp.example.com docker compose --profile public up -d
+	# and remove the `tls internal` line (Caddy gets a Let's Encrypt cert).
+	auto_https disable_redirects
+}
+
+{$DOMAIN:localhost} {
+	tls internal
+
+	encode zstd gzip
+
+	handle /.well-known/* {
+		reverse_proxy {$MCP_UPSTREAM:mcp-server:8000}
+	}
+
+	handle /healthz {
+		reverse_proxy {$MCP_UPSTREAM:mcp-server:8000}
+	}
+
+	handle /readyz {
+		reverse_proxy {$MCP_UPSTREAM:mcp-server:8000}
+	}
+
+	handle /mcp* {
+		reverse_proxy {$MCP_UPSTREAM:mcp-server:8000}
+	}
+
+	handle /realms/* {
+		reverse_proxy keycloak:8080
+	}
+
+	handle /resources/* {
+		reverse_proxy keycloak:8080
+	}
+
+	handle /admin/* {
+		reverse_proxy keycloak:8080
+	}
+
+	handle {
+		respond "Not Found" 404
+	}
+}
